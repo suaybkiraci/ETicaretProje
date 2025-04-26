@@ -147,11 +147,11 @@ def view_cart(request):
         return render(request, 'cart.html', {'message': 'Sepetinizde ürün bulunmamaktadır.'})
 def checkout(request):
     if request.method == 'POST':
-        # Ödeme işlemi, sipariş kaydetme vb. işlemleri burada yapın
-        return JsonResponse({'message': 'Ödeme başarılı!'})
-    
-    # Sepet sayfası görüntülemesi
+        # Ödeme işlemi
+        return redirect('thanks')
     return render(request, 'checkout.html')
+def thanks(request):
+    return render(request, 'thanks.html')
 def remove_product(request,product_id):
     user_id=str(request.user.id)
     try:

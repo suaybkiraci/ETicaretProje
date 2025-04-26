@@ -1,4 +1,8 @@
-<!-- checkout.html -->
+{% extends "base.html" %}
+
+{% block title %}Ödeme Sayfası{% endblock %}
+
+{% block content %}
 <div class="container">
     <h2>Ödeme Sayfası</h2>
     <form method="POST">
@@ -17,3 +21,4 @@
         <button type="submit" class="btn btn-primary">Ödemeyi Tamamla</button>
     </form>
 </div>
+{% endblock %}

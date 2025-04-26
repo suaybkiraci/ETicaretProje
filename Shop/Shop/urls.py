@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import path,include
 from Products.views import (
-    homepage, login_view, signup_view, products,CustomPasswordResetView, product_list, get_image, 
+    homepage, login_view, signup_view, products,thanks,CustomPasswordResetView, product_list, get_image, 
     dashboard, logout_view, add_to_cart,profile, view_cart, checkout, remove_product
 )
 
@@ -38,7 +38,7 @@ urlpatterns = [
     path('cart/', view_cart, name='cart'),
     path('checkout/', checkout, name='checkout'),
     path('remove_product/<str:product_id>/', remove_product, name='remove_product'),
-    
+    path('thanks/', thanks, name='thanks'),
     #profil işlemleeri
     path('profile/',profile,name='profile'),
 

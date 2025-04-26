@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}Teşekkürler{% endblock %}
+
+{% block content %}
+<div class="container text-center mt-5">
+    <h2>Teşekkürler!</h2>
+    <p>Ödemeniz başarıyla tamamlandı. Siparişiniz hazırlanıyor. 🚀</p>
+    <a href="{% url 'dashboard' %}" class="btn btn-primary mt-3">Ana Sayfaya Dön</a>
+</div>
+{% endblock %}
+
