@@ -1,0 +1,19 @@
+<!-- checkout.html -->
+<div class="container">
+    <h2>Ödeme Sayfası</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="address" class="form-label">Adres</label>
+            <textarea class="form-control" id="address" name="address" rows="3" required></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="payment_method" class="form-label">Ödeme Yöntemi</label>
+            <select class="form-select" id="payment_method" name="payment_method" required>
+                <option value="credit_card">Kredi Kartı</option>
+                <option value="paypal">PayPal</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Ödemeyi Tamamla</button>
+    </form>
+</div>

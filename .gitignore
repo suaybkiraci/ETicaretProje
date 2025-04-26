@@ -8,6 +8,10 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+<<<<<<< HEAD
+=======
+env/
+>>>>>>> b5cb797 (İlk commit)
 build/
 develop-eggs/
 dist/
@@ -19,6 +23,7 @@ lib64/
 parts/
 sdist/
 var/
+<<<<<<< HEAD
 wheels/
 share/python-wheels/
 *.egg-info/
@@ -54,12 +59,18 @@ cover/
 # Translations
 *.mo
 *.pot
+=======
+*.egg-info/
+.installed.cfg
+*.egg
+>>>>>>> b5cb797 (İlk commit)
 
 # Django stuff:
 *.log
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
+<<<<<<< HEAD
 
 # Flask stuff:
 instance/
@@ -172,3 +183,29 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+=======
+media
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.env
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Database
+*.sqlite3
+
+# Static files
+/static/
+/staticfiles/
+
+# Secret keys
+*.pem
+*.key 
+>>>>>>> b5cb797 (İlk commit)
