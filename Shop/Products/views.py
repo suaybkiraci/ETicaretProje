@@ -14,6 +14,7 @@ from django.contrib.auth.views import PasswordResetView
 from django.urls import reverse_lazy
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
+from django.contrib.auth.models import User
 # Create your views here.
 
 def homepage(request):
@@ -42,10 +43,29 @@ def login_view(request):
     return render(request, 'login.html')
 
 def signup_view(request):
-    # Zaten giriş yapmış kullanıcıları dashboard'a yönlendir
+    
     if request.user.is_authenticated:
         return redirect('dashboard')
+    
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
         
+        # Kullanıcı adı ve şifreyi doğrula
+        if not username or not password:
+            messages.error(request, "Kullanıcı adı ve şifre gerekli.")
+            return redirect('signup')
+
+        # Yeni kullanıcı oluştur
+        try:
+            user = User.objects.create_user(username=username,password=password)
+            user.save()
+            messages.success(request, "Hesabınız başarıyla oluşturuldu!")
+            return redirect('login')
+        except Exception as e:
+            messages.error(request, f"Bir hata oluştu: {str(e)}")
+            return redirect('signup')
+
     return render(request, 'signup.html')
 
 @login_required(login_url='login')
@@ -98,27 +118,41 @@ def get_image(request, image_id):
 def add_to_cart(request, user_id, product_id):
     if request.method == 'POST':
         try:
-            # Ürün ve sepeti bul
+            user_id = str(request.user.id)  # URL'den değil, oturumdan al
             product = Product.objects.get(id=product_id)
             cart = Cart.objects(user_id=user_id).first()
             
-            # Sepete ürünü ekle
-            quantity = int(request.POST.get('quantity', 1))  # Varsayılan miktar 1
-            cart.add_product(product, quantity)
+            # Sepet yoksa yeni oluştur
+            if not cart:
+                cart = Cart(user_id=user_id, products=[], quantities=[], total_price=0)
+                cart.save()
+            
+            quantity = int(request.POST.get('quantity', 1))
+            
+            # Ürünü sepete ekleme mantığı
+            existing_index = next((i for i, p in enumerate(cart.products) if str(p.id) == product_id), None)
+            
+            if existing_index is not None:
+                cart.quantities[existing_index] += quantity
+            else:
+                cart.products.append(product)
+                cart.quantities.append(quantity)
+            
+            cart.update_total_price()
+            cart.save()
             
             messages.success(request, 'Ürün sepete eklendi!')
             return redirect('cart')
         
-        except Cart.DoesNotExist:
-            # Sepet bulunamadı, yeni sepet oluştur
-            product = Product.objects.get(id=product_id)
-            new_cart = Cart(user_id=user_id, products=[product], quantities=[1])
-            new_cart.update_total_price()
-            new_cart.save()
-            
-            messages.success(request, 'Yeni sepet oluşturuldu ve ürün eklendi!')
-            return redirect('cart')
-    messages.error(request, 'Yalnızca POST istekleri kabul edilir.')
+        except Product.DoesNotExist:
+            messages.error(request, 'Ürün bulunamadı!')
+            return redirect('product_list')
+        
+        except Exception as e:
+            messages.error(request, f'Hata oluştu: {str(e)}')
+            return redirect('product_list')
+    
+    messages.error(request, 'Geçersiz istek metodu!')
     return redirect('product_list')
 @csrf_exempt
 def view_cart(request):
@@ -130,7 +164,9 @@ def view_cart(request):
         # MongoDB sorgusu: Sepeti kullanıcının ID'sine göre getir
         cart = Cart.objects(user_id=user_id).first()
         print("debug cart obj",repr(cart))
-        
+        if not cart:
+            cart=Cart(user_id=user_id,products=[],quantities=[],total_price=0)
+            cart.save()
         # Sepetteki ürünlerin bilgilerini hazırlıyoruz
         products_info = [{
             'product_id': str(product.id),

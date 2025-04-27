@@ -19,7 +19,7 @@ class Product(Document):
 class Cart(Document):
     user_id=StringField(required=True)
     products=ListField(ReferenceField(Product))
-    quantities=ListField(IntField())
+    quantities=ListField(IntField(default=1))
     total_price=FloatField(default=0.0)
     created_at=DateTimeField(default=datetime.now)
     
@@ -46,5 +46,6 @@ class Cart(Document):
     
     def update_total_price(self):
         self.total_price=sum(product.price*quantity for product,quantity in zip(self.products,self.quantities))
+        self.save()
     def __str__(self):
         return f"Sepet: {self.user_id}, {len(self.products)} ürün"
