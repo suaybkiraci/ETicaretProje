@@ -4,7 +4,6 @@ from .forms import ProductForm,ProfileForm
 from django.http import HttpResponse,JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from mongoengine import connect,DoesNotExist
-from gridfs import GridFS
 from django.contrib.auth import authenticate, login, logout,update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from bson.objectid import ObjectId
@@ -15,16 +14,19 @@ from django.urls import reverse_lazy
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User
+from Shop.settings import mongodbname
+from mongoengine import connect
 # Create your views here.
+db=connect(mongodbname,host="localhost",port=27017)
 
 def homepage(request):
-    # Zaten giriş yapmış kullanıcıları dashboard'a yönlendir
+    
     if request.user.is_authenticated:
         return redirect('dashboard')
     return render(request, 'homepage.html')
 
 def login_view(request):
-    # Zaten giriş yapmış kullanıcıları dashboard'a yönlendir
+    
     if request.user.is_authenticated:
         return redirect('dashboard')
         
@@ -51,12 +53,12 @@ def signup_view(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
         
-        # Kullanıcı adı ve şifreyi doğrula
+        # Kullanıcı adı ve şifre doğrulama
         if not username or not password:
             messages.error(request, "Kullanıcı adı ve şifre gerekli.")
             return redirect('signup')
 
-        # Yeni kullanıcı oluştur
+        # yeni kullanıcı
         try:
             user = User.objects.create_user(username=username,password=password)
             user.save()
@@ -92,33 +94,22 @@ def products(request):
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
-            # Resmi GridFS'e kaydet
             product = Product(
                 name=form.cleaned_data['name'],
                 price=form.cleaned_data['price'],
                 description=form.cleaned_data['description']
             )
-            product.image.put(request.FILES['image'],
-            content_type=request.FILES['image'].content_type)  # Resmi MongoDB'ye yükle
             product.save()
             return redirect('product_list')
     else:
         form = ProductForm()
     return render(request, 'add_product.html', {'form': form})
 
-def get_image(request, image_id):
-    db = connect().get_database('eticaret')
-    fs = GridFS(db)
-    try:
-        image_file = fs.get(ObjectId(image_id))
-        return HttpResponse(image_file.read(), content_type=image_file.content_type)
-    except:
-        return HttpResponse(status=404)
-@csrf_exempt
+@login_required(login_url='login')
 def add_to_cart(request, user_id, product_id):
     if request.method == 'POST':
         try:
-            user_id = str(request.user.id)  # URL'den değil, oturumdan al
+            user_id = str(request.user.id)  
             product = Product.objects.get(id=product_id)
             cart = Cart.objects(user_id=user_id).first()
             
@@ -129,7 +120,7 @@ def add_to_cart(request, user_id, product_id):
             
             quantity = int(request.POST.get('quantity', 1))
             
-            # Ürünü sepete ekleme mantığı
+            # Ürünü sepete ekleme 
             existing_index = next((i for i, p in enumerate(cart.products) if str(p.id) == product_id), None)
             
             if existing_index is not None:
@@ -154,7 +145,7 @@ def add_to_cart(request, user_id, product_id):
     
     messages.error(request, 'Geçersiz istek metodu!')
     return redirect('product_list')
-@csrf_exempt
+
 def view_cart(request):
     if not request.user.is_authenticated:
         return redirect('login')  # Kullanıcı giriş yapmamışsa yönlendir

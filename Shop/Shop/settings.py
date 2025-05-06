@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'Products',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -40,7 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
-    'Products',
+    
+    
 ]
 
 MIDDLEWARE = [
@@ -92,7 +94,7 @@ DATABASES = {
         'PASSWORD':'123456',
         'HOST':'localhost',
         'PORT':'3306',
-    },
+    }
     #'mongodb':{
     #    'ENGINE':'django_mongodb_backend',
     #    'NAME':'eticaret',
@@ -158,10 +160,13 @@ REST_FRAMEWORK = {
 }
 
 from datetime import timedelta
+import sys
+if 'test' in sys.argv:
+    mongodbname='eticaret_test_db'
+else:
+    mongodbname='eticaret'
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
-from mongoengine import connect
-connect("eticaret",host="localhost",port=27017)

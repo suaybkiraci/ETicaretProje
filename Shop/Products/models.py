@@ -2,6 +2,10 @@ from mongoengine import Document,IntField, StringField,ImageField, FloatField,Da
 from mongoengine.document import Document
 from django.contrib.auth.models import User
 from datetime import datetime
+from Shop.settings import mongodbname
+
+from mongoengine import connect
+connect(mongodbname,host="localhost",port=27017)
 
 # Create your models here.
 
